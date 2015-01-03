@@ -28,6 +28,7 @@
 @property (nonatomic, strong, readonly) NSURL *baseURL;
 
 + (instancetype)sharedClient;
++ (instancetype)sharedClientWithAppGroupName:(NSString *)appGroupName;
 
 // Authentication
 - (void)authenticateUser:(NSString *)username
@@ -54,6 +55,9 @@
 - (void) loadObject:(BAAObject *)object completion:(BAAObjectResultBlock)completionBlock;
 - (void) loadCollection:(BAAObject *)object completion:(BAAArrayResultBlock)completionBlock;
 - (void) loadCollection:(BAAObject *)object withParams:(NSDictionary *)parameters completion:(BAAArrayResultBlock)completionBlock;
+- (void)loadDictionaryObjectsFromCollection:(NSString *)collectionName
+                                 withParams:(NSDictionary *)parameters
+                                 completion:(BAAArrayResultBlock)completionBlock;
 
 // saving
 - (void) createObject:(BAAObject *)object completion:(BAAObjectResultBlock)completionBlock;

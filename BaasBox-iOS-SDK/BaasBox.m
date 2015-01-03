@@ -49,24 +49,26 @@
 }
 
 + (NSError *)authenticationErrorForResponse:(NSDictionary *)response {
-
-    if (response == nil) {
-        NSDictionary *errorDetail = @{NSLocalizedDescriptionKey:@"Server returned an empty response.",
-                                      @"BaasBox API Version": @[response[@"API_version"]],
-                                      @"iOS SDK Version" : VERSION};
-        return [NSError errorWithDomain:[BaasBox errorDomain]
-                                   code:-22222
-                               userInfo:errorDetail];
-    }
-
-    NSDictionary *errorDetail = @{NSLocalizedDescriptionKey:response[@"message"],
-                                  @"BaasBox_API_version": @[response[@"API_version"]],
-                                  @"iOS SDK Version" : VERSION};
-    NSError *error = [NSError errorWithDomain:[BaasBox errorDomain]
-                                         code:-22222
-                                     userInfo:errorDetail];
-    return error;
     
+    @try {
+        
+        if (response) {
+            NSDictionary *errorDetail = @{NSLocalizedDescriptionKey:response[@"message"],
+                                          @"BaasBox_API_version": @[response[@"API_version"]],
+                                          @"iOS SDK Version" : VERSION};
+            NSError *error = [NSError errorWithDomain:[BaasBox errorDomain]
+                                                 code:-22222
+                                             userInfo:errorDetail];
+            return error;
+        }
+    }
+    @catch (NSException *exception) {
+        
+    }
+    
+    return [NSError errorWithDomain:[BaasBox errorDomain]
+                               code:-22222
+                           userInfo:nil];
 }
 
 + (NSDateFormatter *)dateFormatter {
