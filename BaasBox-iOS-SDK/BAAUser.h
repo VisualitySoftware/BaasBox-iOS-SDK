@@ -33,10 +33,11 @@
 - (NSString *) jsonString;
 - (NSString *) username;
 
-+ (BAAUser *)userWithUsername:(NSString *)username;
+// login/logout
++ (void) loginWithUsername:(NSString *)username password:(NSString *)password completion:(BAABooleanResultBlock)completionHandler;
++ (void) logoutWithCompletion:(BAABooleanResultBlock)completionBlock;
 
 // load
-+ (void) logoutWithCompletion:(BAABooleanResultBlock)completionBlock;
 + (void) loadCurrentUserWithCompletion:(BAAObjectResultBlock)completionBlock;
 + (void) loadUsersWithParameters:(NSDictionary *)parameters completion:(BAAArrayResultBlock)completionBlock;
 + (void) loadUserDetails:(NSString *)username completion:(BAAObjectResultBlock)completionBlock;

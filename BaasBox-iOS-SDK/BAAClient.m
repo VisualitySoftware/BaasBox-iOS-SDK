@@ -137,7 +137,6 @@ NSArray * BAAQueryStringPairsFromKeyAndValue(NSString *key, id value) {
 
 @property (nonatomic, copy) NSString *appCode;
 @property (nonatomic, strong) NSURLSession *session;
-@property (copy, nonatomic) NSString *appGroupName;
 
 - (BAAUser *) loadUserFromDisk;
 - (void)_initSession;
@@ -159,19 +158,6 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
     return sharedBAAClient;
 }
 
-+ (instancetype)sharedClientWithAppGroupName:(NSString *)appGroupName {
-    
-    static BAAClient *sharedBAAClient = nil;
-    static dispatch_once_t onceBAAToken;
-    
-    dispatch_once(&onceBAAToken, ^{
-        
-        sharedBAAClient = [[BAAClient alloc] initWithAppGroupName:appGroupName];
-    });
-    
-    return sharedBAAClient;
-}
-
 - (id) init {
     
     if (self = [super init]) {
@@ -179,21 +165,8 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
         _baseURL = [NSURL URLWithString:[BaasBox baseURL]];
         _appCode = [BaasBox appCode];
         [self _initSession];
+        
 	}
-    
-    return self;
-}
-
-- (id) initWithAppGroupName:(NSString *)appGroupName {
-    
-    if (self = [super init]) {
-        
-        _baseURL = [NSURL URLWithString:[BaasBox baseURL]];
-        _appCode = [BaasBox appCode];
-        _appGroupName = appGroupName;
-        
-        [self _initSession];
-    }
     
     return self;
 }
@@ -327,17 +300,13 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
         parameters:nil
            success:^(id responseObject) {
                
-               self.currentUser = nil;
-               [self saveUserToDisk:self.currentUser];
-               
                if (completionHandler) {
+                   self.currentUser = nil;
+                   [self saveUserToDisk:self.currentUser];
                    completionHandler(YES, nil);
                }
                
            } failure:^(NSError *error) {
-               
-               self.currentUser = nil;
-               [self saveUserToDisk:self.currentUser];
                
                if (completionHandler) {
                    completionHandler(NO, error);
@@ -419,30 +388,6 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                            kPageSizeKey : [NSNumber numberWithInteger:kPageLength]}
               completion:completionBlock];
     
-}
-
-- (void)loadDictionaryObjectsFromCollection:(NSString *)collectionName
-                                 withParams:(NSDictionary *)parameters
-                                 completion:(BAAArrayResultBlock)completionBlock
-{
-    [self getPath:[NSString stringWithFormat:@"document/%@",collectionName]
-       parameters:parameters
-          success:^(id responseObject)
-     {
-         NSArray *objects = responseObject[@"data"];
-         NSMutableArray *result = [NSMutableArray array];
-         
-         for (NSDictionary *d in objects)
-         {
-             [result addObject:d];
-         }
-         
-         completionBlock(result, nil);
-     }
-          failure:^(NSError *error)
-     {
-         completionBlock(nil, error);
-     }];
 }
 
 - (void) createObject:(BAAObject *)object completion:(BAAObjectResultBlock)completionBlock {
@@ -1200,32 +1145,34 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
 
 - (void) askToEnablePushNotifications {
     
-#ifndef EXTENSION
+#if !(TARGET_IPHONE_SIMULATOR)
     
-#if TARGET_OS_IPHONE
+    #if TARGET_OS_IPHONE
     
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-        
-        UIUserNotificationSettings *settings =
-        [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert |UIUserNotificationTypeBadge |  UIUserNotificationTypeSound
-                                          categories:nil];
-        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
-    } else {
-        
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
-         (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
-    }
+        #if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
     
-#else
+            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:
+            (UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
     
-    [[NSApplication sharedApplication] registerForRemoteNotificationTypes:
-     (NSRemoteNotificationTypeBadge | NSRemoteNotificationTypeSound | NSRemoteNotificationTypeAlert)];
+        #else
     
+            UIUserNotificationSettings *settings =
+            [UIUserNotificationSettings settingsForTypes:UIUserNotificationTypeAlert |UIUserNotificationTypeBadge |  UIUserNotificationTypeSound
+                                      categories:nil];
+            [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+    
+        #endif
+    
+    #else
+    
+        [[NSApplication sharedApplication] registerForRemoteNotificationTypes:
+        (NSRemoteNotificationTypeBadge | NSRemoteNotificationTypeSound | NSRemoteNotificationTypeAlert)];
+    
+    #endif
+
 #endif
-    
-#endif
-  
+
 }
 
 - (void) enablePushNotifications:(NSData *)tokenData completion:(BAABooleanResultBlock)completionBlock {
@@ -1698,16 +1645,7 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
 
 - (void) saveUserToDisk:(BAAUser *)user {
     
-    NSUserDefaults *defaults = [NSUserDefaults alloc];
-    
-    if ([defaults respondsToSelector:@selector(initWithSuiteName:)] && self.appGroupName) {
-        
-        defaults = [defaults initWithSuiteName:self.appGroupName];
-    } else {
-        
-        defaults = [NSUserDefaults standardUserDefaults];
-    }
-
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSData *encodedUser = [NSKeyedArchiver archivedDataWithRootObject:user];
     [defaults setValue:encodedUser forKey:BAAUserKeyForUserDefaults];
     [defaults synchronize];
@@ -1715,17 +1653,8 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
 }
 
 - (BAAUser *) loadUserFromDisk {
-
-    NSUserDefaults *defaults = [NSUserDefaults alloc];
     
-    if ([defaults respondsToSelector:@selector(initWithSuiteName:)] && self.appGroupName) {
-        
-        defaults = [defaults initWithSuiteName:self.appGroupName];
-    } else {
-        
-        defaults = [NSUserDefaults standardUserDefaults];
-    }
-    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSData *decodedUser = [defaults objectForKey:BAAUserKeyForUserDefaults];
 
     if (decodedUser) {

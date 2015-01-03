@@ -75,10 +75,32 @@
     
 }
 
-+ (BAAUser *)userWithUsername:(NSString *)username
-{
-    BAAUser *user = [[BAAUser alloc] initWithDictionary:@{@"user":@{@"name":username}}];
-    return user;
+#pragma mark - Login
+
++ (void) loginWithUsername:(NSString *)username password:(NSString *)password completion:(BAABooleanResultBlock)completionHandler {
+  
+  BAAClient *client = [BAAClient sharedClient];
+  [client authenticateUser:username password:password completion:^(BOOL success, NSError *error) {
+    
+    if (completionHandler) {
+      completionHandler(success, error);
+    }
+    
+  }];
+  
+}
+
++ (void) logoutWithCompletion:(BAABooleanResultBlock)completionBlock {
+  
+  BAAClient *client = [BAAClient sharedClient];
+  [client logoutWithCompletion:^(BOOL success, NSError *error) {
+    
+    if (completionBlock) {
+      completionBlock(success, error);
+    }
+    
+  }];
+  
 }
 
 #pragma mark - Load
@@ -90,19 +112,6 @@
         
         if (completionBlock){
             completionBlock(user, error);
-        }
-        
-    }];
-    
-}
-
-+ (void) logoutWithCompletion:(BAABooleanResultBlock)completionBlock {
-
-    BAAClient *client = [BAAClient sharedClient];
-    [client logoutWithCompletion:^(BOOL success, NSError *error) {
-       
-        if (completionBlock) {
-            completionBlock(success, error);
         }
         
     }];
@@ -489,9 +498,13 @@
 }
 
 - (NSString *) username {
-    
+  
+  if ([self.visibleByRegisteredUsers[@"_social"] count] > 0) {
+    return self.visibleByTheUser[@"name"];
+  } else {
     return self.user[@"name"];
-    
+  }
+  
 }
 
 - (NSString *)description {
