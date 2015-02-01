@@ -504,7 +504,7 @@
   } else {
     return self.user[@"name"];
   }
-  
+
 }
 
 - (NSString *)description {
