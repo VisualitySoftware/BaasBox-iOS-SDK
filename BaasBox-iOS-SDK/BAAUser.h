@@ -21,6 +21,7 @@
 
 @property (nonatomic, copy) NSString *authenticationToken;
 @property (nonatomic, copy) NSString *pushNotificationToken;
+@property (nonatomic, copy) NSDate *signupDate;
 @property (nonatomic, assign) BOOL pushEnabled;
 @property (nonatomic, copy) NSDictionary *roles;
 @property (nonatomic, copy) NSString *status;

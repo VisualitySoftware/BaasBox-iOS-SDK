@@ -46,6 +46,10 @@
         _user = dict[@"user"];
         _roles = dict[@"user"][@"roles"];
         _status = dict[@"user"][@"status"];
+        NSString *string = dict[@"signUpDate"];
+        NSArray *substrings = [string componentsSeparatedByString:@"."];
+        NSString *signupDateString = [substrings objectAtIndex:0];
+        _signupDate = [[NSDate alloc] initWithISOString:signupDateString];
         _visibleByAnonymousUsers = [NSMutableDictionary dictionaryWithDictionary:dict[@"visibleByAnonymousUsers"]];
         _visibleByRegisteredUsers = [NSMutableDictionary dictionaryWithDictionary:dict[@"visibleByRegisteredUsers"]];
         
@@ -72,7 +76,6 @@
     }
     
     return self;
-    
 }
 
 #pragma mark - Login
