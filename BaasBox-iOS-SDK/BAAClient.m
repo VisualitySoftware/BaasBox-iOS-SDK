@@ -647,13 +647,9 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                          if (completionBlock) {
                              
                              NSHTTPURLResponse *res = (NSHTTPURLResponse*)response;
-                             
-                             NSDictionary *d;
-                             if (data) {
-                                 d = [NSJSONSerialization JSONObjectWithData:data
-                                                                     options:kNilOptions
-                                                                       error:nil];
-                             }
+                             NSDictionary *d = [NSJSONSerialization JSONObjectWithData:data
+                                                                               options:kNilOptions
+                                                                                 error:nil];
                              
                              if (error == nil && res.statusCode <= 201) {
                                  
@@ -1547,14 +1543,16 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                          
                          NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
-                         
+
                          NSDictionary *jsonObject;
+                         
                          if (data) {
+                             
                              jsonObject = [NSJSONSerialization JSONObjectWithData:data
                                                                           options:kNilOptions
                                                                             error:nil];
                          }
-                         
+
                          if (httpResponse.statusCode >= 400) {
                              
                              NSError *error = [BaasBox authenticationErrorForResponse:jsonObject];                            
@@ -1599,11 +1597,14 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                          
                          NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
+                         
                          NSDictionary *jsonObject;
+                         
                          if (data) {
+                          
                              jsonObject = [NSJSONSerialization JSONObjectWithData:data
-                                                                          options:kNilOptions
-                                                                            error:nil];
+                                                               options:kNilOptions
+                                                                 error:nil];
                          }
                          
                          if (r.statusCode >= 400) {
@@ -1640,13 +1641,16 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                          
                          NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
+
                          NSDictionary *jsonObject;
+
                          if (data) {
+                             
                              jsonObject = [NSJSONSerialization JSONObjectWithData:data
                                                                           options:kNilOptions
                                                                             error:nil];
                          }
-                         
+
                          if (r.statusCode >= 400) {
                              
                              NSError *error = [BaasBox authenticationErrorForResponse:jsonObject];
@@ -1681,13 +1685,16 @@ NSString* const BAAUserKeyForUserDefaults = @"com.baaxbox.user";
                      completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
                          
                          NSHTTPURLResponse *r = (NSHTTPURLResponse*)response;
+
                          NSDictionary *jsonObject;
+                         
                          if (data) {
+                             
                              jsonObject = [NSJSONSerialization JSONObjectWithData:data
                                                                           options:kNilOptions
                                                                             error:nil];
                          }
-                         
+
                          if (r.statusCode >= 400) {
                              
                              NSError *error = [BaasBox authenticationErrorForResponse:jsonObject];
