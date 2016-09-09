@@ -25,6 +25,7 @@
 
 #import "BAAUser.h"
 #import <objc/runtime.h>
+#import "NSDate+Visuality.h"
 
 @interface BAAUser () {
 
